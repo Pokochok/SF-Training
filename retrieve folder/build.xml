@@ -1,0 +1,187 @@
+<project name="Salesforce" basedir="." xmlns:sf="antlib:com.salesforce" default="testDeploy">
+    <taskdef resource="com/salesforce/antlib.xml" classPath="libs/ant-salesforce.jar" uri="antlib:com.salesforce"/>
+    <property name="target" value="src" />
+    <property name="rollbackOnError" value="true" />
+    <property name="logtype" value="None" />
+    <property file="build.properties"/>
+    <property environment="dev"/>
+
+    <!--
+        Select the target deployment environment.
+        Note: All Development sandboxes must contain "dev" prefix.
+    -->
+    <condition property="isDev">
+        <contains string="${env}" substring="dev" casesensitive="false"/>
+    </condition>
+    <condition property="isCI">
+        <equals arg1="${env}" arg2="ci"/>
+    </condition>
+    <condition property="isQA">
+        <equals arg1="${env}" arg2="qa"/>
+    </condition>
+    <condition property="isUAT">
+        <equals arg1="${env}" arg2="uat"/>
+    </condition>
+
+    <!--
+        Initialize credentials to deploy to target environment:
+        sf.username, sf.password
+    -->
+    <target name="initDev" if="isDev">
+        <property name="sf.password" value="${dev.password}"/>
+    </target>
+    <target name="initCI" if="isCI">
+        <property name="sf.password" value="${ci.password}"/>
+    </target>
+    <target name="initQA" if="isQA">
+        <property name="sf.password" value="${qa.password}"/>
+    </target>
+    <target name="initUAT" if="isUAT">
+        <property name="sf.password" value="${uat.password}"/>
+    </target>
+
+    <target name="init" depends="initDev, initCI, initQA, initUAT">
+        <tstamp>
+            <format property="current.time.UAE" pattern="MM/dd/yyyy hh:mm:ss aa" timezone="GMT+4"/>
+            <format property="current.time.MSQ" pattern="MM/dd/yyyy hh:mm:ss aa" timezone="GMT+3"/>
+            <format property="current.time.GMT" pattern="MM/dd/yyyy hh:mm:ss aa" timezone="GMT"/>
+        </tstamp>
+        <echo>
+_____________________________________________________________________________________________________________
+
+            Task start time: ${current.time.UAE} (UAE)
+            Task start time: ${current.time.MSQ} (MSQ)
+            Task start time: ${current.time.GMT} (GMT)
+            Current account ${sf.username}
+_____________________________________________________________________________________________________________
+        </echo>
+    </target>
+
+    <presetdef name="deploy">
+        <sf:deploy username="${sf.username}"
+                   password="${sf.password}"
+                   serverurl="${sf.serverurl}"
+                   deployRoot="src"
+                   checkOnly="false"
+                   ignoreWarnings="true"
+                   testLevel="NoTestRun"
+                   rollbackOnError="true"
+                   pollWaitMillis="500"
+                   maxPoll="3000">
+        </sf:deploy>
+    </presetdef>
+
+    <presetdef name="deployNoTests">
+        <sf:deploy username="${sf.username}"
+                   password="${sf.password}"
+                   serverurl="${sf.serverurl}"
+                   deployRoot="src"
+                   checkOnly="false"
+                   ignoreWarnings="true"
+                   testLevel="NoTestRun"
+                   rollbackOnError="true"
+                   pollWaitMillis="10000"
+                   maxPoll="40"
+                   trace="false"
+                   logType="None">
+        </sf:deploy>
+    </presetdef >
+
+<!-- ******************************************** Targets ********************************************************** -->
+
+    <target name="deploy" depends="init" description="Deploys metadata to specified environment" >
+       <deploy />
+    </target>
+
+    <target name="phasicDeploy" depends="init" description="Deploys metadata to ${sf.env}" >
+        <echo>
+        ***** PRE DEPLOY HAS STARTED *****
+        </echo>
+        <antcall target="preDeploy"/>
+        <echo>
+        ***** MAIN DEPLOY HAS STARTED *****
+        </echo>
+        <deploy testLevel="RunLocalTests"/>
+        <echo>
+        ***** POST DEPLOY HAS STARTED *****
+        </echo>
+        <antcall target="postDeploy"/>
+        <echo>
+        ***** POST INSTALL APEX HAS STARTED *****
+        </echo>
+        <antcall target="runPostInstallApex"/>
+    </target>
+
+    <target name="testDeploy" depends="init" description="Tests metadata deployment to specified environment(command line parameter)" >
+       <deploy checkOnly="true" testLevel="RunLocalTests" />
+    </target>
+
+    <target name="debugOnly" depends="init" description="Tests metadata deployment to specified environment(command line parameter)" >
+       <deploy logType="Debugonly" checkOnly="true" />
+    </target>
+
+    <target name="verifyDeploy" depends="init" description="Verifies metadata to specified environment(command line parameter) without running tests" >
+       <deployNoTests checkOnly="true" />
+    </target>
+
+    <target name="quickDeploy" depends="init" description="Deploys metadata to specified environment(command line parameter) without running tests" >
+       <deployNoTests />
+    </target>
+
+   <target name="retrieve" depends="init" description="Retrieves metadata from specified environment(command line parameter) to ${target}" >
+      <mkdir dir="${target}"/>
+      <sf:retrieve username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" retrieveTarget="${target}" unpackaged="src/package.xml"/>
+    </target>
+
+    <!-- **************************************** Post & Pre deploy targets **************************************** -->
+    <!-- Pre Deploy -->
+    <target name="preDeploy" depends="init" description="PreDeploy changes to specified environment(command line parameter)" >
+        <deployNoTests deployRoot="predeploy" />
+    </target>
+
+    <target name="verifyPreDeploy" depends="init" description="Verifies PreDeploy changes to  to specified environment(command line parameter) without running tests" >
+        <deployNoTests deployRoot="predeploy" checkOnly="true" />
+    </target>
+
+    <target name="testPreDeploy" depends="init" description="Tests PreDeploy changes to specified environment(command line parameter)" >
+       <deploy deployRoot="predeploy" checkOnly="true" />
+    </target>
+
+    <target name="quickPreDeploy" depends="init" description="PreDeploy changes to  to specified environment(command line parameter) without running tests" >
+        <deployNoTests deployRoot="predeploy" />
+    </target>
+
+    <!-- Post Deploy -->
+    <target name="postDeploy" depends="init" description="PostDeploy changes to specified environment(command line parameter)" >
+       <deployNoTests deployRoot="postdeploy" />
+    </target>
+
+    <target name="verifyPostDeploy" depends="init" description="Verifies PostDeploy changes to specified environment(command line parameter) without running tests" >
+        <deployNoTests deployRoot="postdeploy" checkOnly="true" />
+    </target>
+
+    <target name="testPostDeploy" depends="init" description="Tests PostDeploy changes to specified environment(command line parameter)" >
+       <deploy deployRoot="postdeploy" checkOnly="true" />
+    </target>
+
+    <target name="quickPostDeploy" depends="init" description="PostDeploy changes to  to specified environment(command line parameter) without running tests" >
+        <deployNoTests deployRoot="postdeploy" />
+    </target>
+
+    <!-- **************************************** Run Apex Code **************************************** -->
+    <taskdef name="apex" classname="com.force.ant.AnonymousApex">
+        <classpath>
+            <pathelement location="libs/ant-salesforce.jar"/>
+            <pathelement location="libs/ant-salesforce-ext.jar"/>
+        </classpath>
+    </taskdef>
+
+    <target name="runPostInstallApex" depends="init" description="runApex" >
+        <apex
+            username="${sf.username}"
+            password="${sf.password}"
+            serverurl="${sf.serverurl}"
+            code="new InstallScript().onInstall(null);"
+            />
+    </target>
+</project>
