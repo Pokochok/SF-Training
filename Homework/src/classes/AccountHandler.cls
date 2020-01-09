@@ -1,9 +1,15 @@
 public class AccountHandler {
-    public static void createNewTaskAndLinkWithAccount(List<Account> accounts){
-        List<Task> tasks = new List<Task>();
-        for (Account acc : accounts){
-            tasks.add(new Task(Subject='Negotiations with ' + acc.Name, WhatId=acc.Id));
+    public static Boolean afterUpdateProcessingFirstRun = true;
+
+    public static void afterInsertProcessing(Map<Id, Account> oldAccounts, Map<Id, Account> newAccounts){
+        AccountTriggerHelper.createNewTaskAndLinkWithAccount(oldAccounts.keySet());
+    }
+
+    public static void afterUpdateProcessing(Map<Id, Account> oldAccounts, Map<Id, Account> newAccounts){
+        if(afterUpdateProcessingFirstRun) {
+            afterUpdateProcessingFirstRun = false;
+            AccountTriggerHelper.changeContactsOfAccountsWhenBillingAddressUpdated(oldAccounts.values(), newAccounts.values());
+            AccountTriggerHelper.changeTasksUser(newAccounts.keySet());
         }
-        insert tasks;
     }
 }

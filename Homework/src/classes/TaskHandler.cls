@@ -3,17 +3,10 @@
  */
 
 public with sharing class TaskHandler {
-    public static void plansDiscussedToTrueWhenTaskCompleted(List<Task> tasks){
-        List<Account> accounts = new List<Account>();
-        for (Task task : tasks){
-            Account account = [SELECT Plans_Discussed__c FROM Account WHERE Id=:task.WhatId];
-            if (task.Status == 'Completed') {
-                account.Plans_Discussed__c = true;
-            } else {
-                account.Plans_Discussed__c = false;
-            }
-            accounts.add(account);
-        }
-        update accounts;
+    public static Boolean afterUpdateProcessingFirstRun = true;
+
+    public static void afterUpdateProcessing(Map<Id, Task> oldTasks, Map<Id, Task> newTasks){
+        afterUpdateProcessingFirstRun = false;
+        TaskTriggerHelper.plansDiscussedToTrueWhenTaskCompleted(newTasks.values());
     }
 }

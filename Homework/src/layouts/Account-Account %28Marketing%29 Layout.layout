@@ -30,7 +30,7 @@
                 <field>Site</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Required</behavior>
+                <behavior>Edit</behavior>
                 <field>Support_Tier__c</field>
             </layoutItems>
             <layoutItems>
@@ -48,6 +48,14 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Plans_Discussed__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Updated_By_Task__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Updated_By_Contact__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>

@@ -474,7 +474,7 @@
         <defaultValue>$CustomMetadata.Support_Tier__mdt.Bronze.MasterLabel</defaultValue>
         <externalId>false</externalId>
         <label>Support Tier</label>
-        <required>true</required>
+        <required>false</required>
         <trackFeedHistory>false</trackFeedHistory>
         <type>Picklist</type>
         <valueSet>
@@ -520,6 +520,22 @@
         <fullName>Type</fullName>
         <trackFeedHistory>false</trackFeedHistory>
         <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Updated_By_Contact__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Updated By Contact</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Updated_By_Task__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Updated By Task</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
     </fields>
     <fields>
         <fullName>UpsellOpportunity__c</fullName>
@@ -618,7 +634,7 @@
     <sharingModel>ReadWrite</sharingModel>
     <validationRules>
         <fullName>Account_Number_8_Characters</fullName>
-        <active>true</active>
+        <active>false</active>
         <errorConditionFormula>LEN( AccountNumber) != 8</errorConditionFormula>
         <errorMessage>Account number must be 8 characters long.</errorMessage>
     </validationRules>

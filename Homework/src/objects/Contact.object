@@ -394,6 +394,14 @@
         <type>Lookup</type>
     </fields>
     <fields>
+        <fullName>Is_Synced__c</fullName>
+        <defaultValue>true</defaultValue>
+        <externalId>false</externalId>
+        <label>Is Synced</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
         <fullName>Jigsaw</fullName>
         <trackFeedHistory>false</trackFeedHistory>
     </fields>
@@ -474,6 +482,22 @@
     <fields>
         <fullName>Phone</fullName>
         <trackFeedHistory>false</trackFeedHistory>
+    </fields>
+    <fields>
+        <fullName>Processed_By_Future__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Processed By Future</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Processed_By_Queue__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Processed By Queue</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
     </fields>
     <fields>
         <fullName>ReportsToId</fullName>
@@ -557,7 +581,7 @@
     </validationRules>
     <validationRules>
         <fullName>Contact_must_be_in_Account_ZIP_Code</fullName>
-        <active>true</active>
+        <active>false</active>
         <errorConditionFormula>AND(  NOT( ISBLANK( AccountId )),
 MailingPostalCode  !=  Account.ShippingPostalCode)</errorConditionFormula>
         <errorDisplayField>MailingPostalCode</errorDisplayField>

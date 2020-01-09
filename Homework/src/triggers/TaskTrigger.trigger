@@ -3,9 +3,10 @@
  */
 
 trigger TaskTrigger on Task (before insert, before update, before delete, after insert, after update, after delete) {
+    public static Boolean afterUpdateFirsRun = true;
     if (trigger.isAfter) {
         if (trigger.isUpdate) {
-            TaskHandler.plansDiscussedToTrueWhenTaskCompleted(trigger.new);
+            TaskHandler.afterUpdateProcessing(trigger.oldMap, trigger.newMap);
         }
     }
 }
