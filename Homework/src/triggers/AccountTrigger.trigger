@@ -5,7 +5,9 @@
 trigger AccountTrigger on Account (before insert, before update, before delete, after insert, after update, after delete) {
     if (trigger.isAfter) {
         if (trigger.isInsert) {
-            AccountHandler.createNewTaskAndLinkWithAccount(trigger.new);
+            AccountHandler.afterInsertProcessing(trigger.oldMap, trigger.newMap);
+        } else if (trigger.isUpdate) {
+            AccountHandler.afterUpdateProcessing(trigger.oldMap, trigger.newMap);
         }
     }
 }
